@@ -8,9 +8,17 @@ async function renderOrder(){
     await loadProductsFetch();
     updateCartQuantity();
 
+    if(!orders || orders.length === 0){
+        document.querySelector('.order-container').innerHTML = '';
+        return;
+    }
+
     let ordersHTML ='';
 
     orders.forEach((order)=>{
+        if(!order || !order.id || !order.orderTime){
+            return;
+        }
 
         const orderTimeString = dayjs(order.orderTime).format('MMMM D');
     
@@ -42,50 +50,52 @@ async function renderOrder(){
     function productsListHTML(order){
         let productsListHTML = '';
 
-        if(order.products){
-            order.products.forEach((orderProducts)=>{
-                const product = getProduct(orderProducts.productId);
+        if(!order.products || order.products.length === 0){
+            return '';
+        }
 
-                productsListHTML += `
-                <div class="product-image-container">
-                <img src="${product.image}">
-                </div>
+        order.products.forEach((orderProducts)=>{
+            const product = getProduct(orderProducts.productId);
 
-                <div class="product-details">
-                <div class="product-name">
-                    ${product.name}
-                </div>
-                <div class="product-delivery-date">
-                    Arriving on: ${
-                    dayjs(orderProducts.estimatedDeliveryTime).format('MMMM D')
-                    }
-                </div>
-                <div class="product-quantity">
-                    Quantity: ${orderProducts.quantity}
-                </div>
-                <button class="buy-again-button button-primary" data-product-id="${product.id}">
-                    <img class="buy-again-icon" src="images/icons/buy-again.png">
-                    <span class="buy-again-message">Buy it again</span>
+            productsListHTML += `
+            <div class="product-image-container">
+            <img src="${product.image}">
+            </div>
+
+            <div class="product-details">
+            <div class="product-name">
+                ${product.name}
+            </div>
+            <div class="product-delivery-date">
+                Arriving on: ${
+                dayjs(orderProducts.estimatedDeliveryTime).format('MMMM D')
+                }
+            </div>
+            <div class="product-quantity">
+                Quantity: ${orderProducts.quantity}
+            </div>
+            <button class="buy-again-button button-primary" data-product-id="${product.id}">
+                <img class="buy-again-icon" src="images/icons/buy-again.png">
+                <span class="buy-again-message">Buy it again</span>
+            </button>
+            </div>
+
+            <div class="product-actions">
+            <a href="tracking.html?orderId=${order.id}&productId=${product.id}">
+                <button class="track-package-button button-secondary">
+                Track package
                 </button>
-                </div>
-
-                <div class="product-actions">
-                <a href="tracking.html?orderId=${order.id}&productId=${product.id}">
-                    <button class="track-package-button button-secondary">
-                    Track package
-                    </button>
-                </a>
-                </div>
-            `;
-            });
-            return productsListHTML;
-        } else(productsListHTML='No orders')
+            </a>
+            </div>
+        `;
+        });
+        return productsListHTML;
     }
 
     document.querySelector('.order-container').innerHTML = ordersHTML;
     document.querySelectorAll('.buy-again-button').forEach((button)=>{
         button.addEventListener('click', ()=>{
-            addToCart(button.dataset.productId);
+            addToCart(button.dataset.productId, 1);
             updateCartQuantity();
 
             button.innerHTML='Added';
