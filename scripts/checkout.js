@@ -1,13 +1,17 @@
 import { renderOrderSummary } from "./checkout/orderSummary.js";
 import { renderPaymentSummary } from "./checkout/paymentSummary.js";
 import { loadProductsFetch } from "../data/products.js";
-import { loadCart, loadCartFetch } from "../data/cart.js";
-import { showOrders } from "../data/orders.js";
+import { loadCartFetch, calculateCartQuantity } from "../data/cart.js";
 // import '../data/car.js';
 // import '../data/backend-practice.js'
+export function updateCartQuantity(){
+    const cartQuantity = calculateCartQuantity();
+    document.querySelector('.js-return').innerHTML = `${cartQuantity} Items`;
+}
 
 async function loadPage(){
     try{
+        updateCartQuantity();
         await Promise.all([
             loadProductsFetch(),
             loadCartFetch()

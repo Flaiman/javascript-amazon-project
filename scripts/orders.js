@@ -2,14 +2,16 @@ import { orders } from "../data/orders.js";
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
 import { getProduct, loadProductsFetch } from "../data/products.js";
 import { formatCurrency } from "./utils/money.js";
-import { addToCart, cart } from "../data/cart.js";
+import { addToCart, calculateCartQuantity } from "../data/cart.js";
 
 async function renderOrder(){
     await loadProductsFetch();
+    updateCartQuantity();
 
-    let ordersHTML;
+    let ordersHTML ='';
 
     orders.forEach((order)=>{
+
         const orderTimeString = dayjs(order.orderTime).format('MMMM D');
     
         ordersHTML += `
@@ -40,49 +42,51 @@ async function renderOrder(){
     function productsListHTML(order){
         let productsListHTML = '';
 
-        order.products.forEach((orderProducts)=>{
-            const product = getProduct(orderProducts.productId);
+        if(order.products){
+            order.products.forEach((orderProducts)=>{
+                const product = getProduct(orderProducts.productId);
 
-            productsListHTML += `
-            <div class="product-image-container">
-            <img src="${product.image}">
-            </div>
+                productsListHTML += `
+                <div class="product-image-container">
+                <img src="${product.image}">
+                </div>
 
-            <div class="product-details">
-            <div class="product-name">
-                ${product.name}
-            </div>
-            <div class="product-delivery-date">
-                Arriving on: ${
-                dayjs(orderProducts.estimatedDeliveryTime).format('MMMM D')
-                }
-            </div>
-            <div class="product-quantity">
-                Quantity: ${orderProducts.quantity}
-            </div>
-            <button class="buy-again-button button-primary" data-product-id="${product.id}">
-                <img class="buy-again-icon" src="images/icons/buy-again.png">
-                <span class="buy-again-message">Buy it again</span>
-            </button>
-            </div>
-
-            <div class="product-actions">
-            <a href="tracking.html?orderId=${order.id}&productId=${product.id}">
-                <button class="track-package-button button-secondary">
-                Track package
+                <div class="product-details">
+                <div class="product-name">
+                    ${product.name}
+                </div>
+                <div class="product-delivery-date">
+                    Arriving on: ${
+                    dayjs(orderProducts.estimatedDeliveryTime).format('MMMM D')
+                    }
+                </div>
+                <div class="product-quantity">
+                    Quantity: ${orderProducts.quantity}
+                </div>
+                <button class="buy-again-button button-primary" data-product-id="${product.id}">
+                    <img class="buy-again-icon" src="images/icons/buy-again.png">
+                    <span class="buy-again-message">Buy it again</span>
                 </button>
-            </a>
-            </div>
-        `;
-        });
+                </div>
 
-        return productsListHTML;
+                <div class="product-actions">
+                <a href="tracking.html?orderId=${order.id}&productId=${product.id}">
+                    <button class="track-package-button button-secondary">
+                    Track package
+                    </button>
+                </a>
+                </div>
+            `;
+            });
+            return productsListHTML;
+        } else(productsListHTML='No orders')
     }
 
     document.querySelector('.order-container').innerHTML = ordersHTML;
     document.querySelectorAll('.buy-again-button').forEach((button)=>{
         button.addEventListener('click', ()=>{
             addToCart(button.dataset.productId);
+            updateCartQuantity();
 
             button.innerHTML='Added';
 
@@ -94,6 +98,10 @@ async function renderOrder(){
             }, 1000);
         });
     });
+
+    function updateCartQuantity(){
+        const cartQuantity = calculateCartQuantity();
+        document.querySelector('.cart-quantity').innerHTML = cartQuantity;
+    }
 }
 renderOrder();
-console.log(cart)

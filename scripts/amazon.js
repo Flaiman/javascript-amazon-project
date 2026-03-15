@@ -1,9 +1,9 @@
-import {cart, addToCart} from '../data/cart.js';
-import {products, loadProducts} from '../data/products.js';
+import {addToCart, calculateCartQuantity} from '../data/cart.js';
+import {products, loadProductsFetch} from '../data/products.js';
 
-loadProducts(renderProductsGrid);
-
-function renderProductsGrid(){
+async function renderProductsGrid(){
+  await loadProductsFetch();
+  updateCartQuantity();
 
   let productHTML = '';
 
@@ -49,7 +49,7 @@ function renderProductsGrid(){
             </div>
 
             <div class="product-quantity-container">
-              <select>
+              <select class="select-quantity select-quantity-${product.id}">
                 <option selected value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -81,25 +81,26 @@ function renderProductsGrid(){
   document.querySelector('.products-grid').innerHTML=productHTML;
 
   function updateCartQuantity(){
-      let cartQuantity = 0;
-      cart.forEach((cartItem) => {
-          cartQuantity+=cartItem.quantity;
-      })
-      
-      document.querySelector('.cart-quantity').innerHTML = cartQuantity;
+    const cartQuantity = calculateCartQuantity();
+    document.querySelector('.cart-quantity').innerHTML = cartQuantity;
   }
 
   document.querySelectorAll('.js-add').forEach((button) => {
       button.addEventListener('click', () => {
           const productId = button.dataset.productId;
-          addToCart(productId);
+          const quantity = Number(
+            document.querySelector(`.select-quantity-${productId}`).value
+          );
+          console.log(quantity);
+          addToCart(productId, quantity);
           updateCartQuantity();
       })
   })
 
   document.querySelector('.search-button').addEventListener('click', ()=>{
-    const searchInput = (document.querySelector('.search-bar').value).toUpperCase();
-    window.location.href = `amazon.html?search=${searchInput}`;
+    const searchInput = document.querySelector('.search-bar').value;
+    window.location.href = `index.html?search=${searchInput}`;
   })
 
 }
+renderProductsGrid();
