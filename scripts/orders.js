@@ -1,8 +1,8 @@
-import { orders } from "../data/orders.js";
+import { orders, removeOrder } from "../data/orders.js";
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
 import { getProduct, loadProductsFetch } from "../data/products.js";
 import { formatCurrency } from "./utils/money.js";
-import { addToCart, calculateCartQuantity } from "../data/cart.js";
+import { addToCart, calculateCartQuantity, cart } from "../data/cart.js";
 
 async function renderOrder(){
     await loadProductsFetch();
@@ -23,6 +23,7 @@ async function renderOrder(){
         const orderTimeString = dayjs(order.orderTime).format('MMMM D');
     
         ordersHTML += `
+            <div class="order-container js-order-container-${order.id}">
                 <div class="order-header">
                     <div class="order-header-left-section">
                     <div class="order-date">
@@ -43,7 +44,9 @@ async function renderOrder(){
 
                 <div class="order-details-grid">
                     ${productsListHTML(order)}
+                    <Button class="remove-order-button" data-order-id=${order.id}>Remove order</button>
                 </div>
+            </div>
         `;
     });
 
@@ -92,7 +95,8 @@ async function renderOrder(){
         return productsListHTML;
     }
 
-    document.querySelector('.order-container').innerHTML = ordersHTML;
+    document.querySelector('.orders-grid').innerHTML = ordersHTML;
+
     document.querySelectorAll('.buy-again-button').forEach((button)=>{
         button.addEventListener('click', ()=>{
             addToCart(button.dataset.productId, 1);
@@ -109,9 +113,20 @@ async function renderOrder(){
         });
     });
 
+    document.querySelectorAll('.remove-order-button').forEach((button)=>{
+        button.addEventListener('click', ()=>{
+            const orderId = button.dataset.orderId;
+            removeOrder(orderId);
+            const container = document.querySelector(`.js-order-container-${orderId}`);
+            container.remove();
+            updateCartQuantity();
+        })
+    })
+
     function updateCartQuantity(){
         const cartQuantity = calculateCartQuantity();
         document.querySelector('.cart-quantity').innerHTML = cartQuantity;
     }
+    console.log(cart);
 }
 renderOrder();

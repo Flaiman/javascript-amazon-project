@@ -1,4 +1,4 @@
-export const orders = JSON.parse(localStorage.getItem('orders')) || [];
+export let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
 export function addOrder(order){
     let repeatItem;
@@ -11,6 +11,19 @@ export function addOrder(order){
         orders.unshift(order);
         saveToStorage();
     }
+}
+
+export function removeOrder(orderId){
+    const newOrders = [];
+
+    orders.forEach((order)=>{
+        if(order.id!==orderId){
+            newOrders.unshift(order);
+        }
+    })
+
+    orders=newOrders;
+    saveToStorage();
 }
 
 export function getOrder(orderId){

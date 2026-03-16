@@ -1,9 +1,11 @@
 import { getOrder } from "../data/orders.js";
 import { getProduct, loadProductsFetch } from "../data/products.js";
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
+import { calculateCartQuantity } from "../data/cart.js";
 
 async function renderTracking(){
     await loadProductsFetch();
+    updateCartQuantity();
 
     const url = new URL(window.location.href);
     const orderId = url.searchParams.get('orderId');
@@ -62,6 +64,11 @@ async function renderTracking(){
         `
 
     document.querySelector('.order-tracking').innerHTML=trackingHTML;
+
+    function updateCartQuantity(){
+        const cartQuantity = calculateCartQuantity();
+        document.querySelector('.cart-quantity').innerHTML = cartQuantity;
+    }
 }
 
 renderTracking();

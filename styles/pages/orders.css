@@ -146,6 +146,18 @@
   justify-content: center;
 }
 
+.remove-order-button{
+  font-size: 15px;
+  width: 300px;
+  height: 30px;
+  border-radius: 8px;
+  color: #FDF5E2;
+  background-color: crimson;
+  border: 1px #7b0b21;
+  align-items: center;
+  justify-content: center;
+}
+
 .buy-again-icon {
   width: 25px;
   margin-right: 15px;
@@ -173,7 +185,7 @@
        of the elements in the HTML. grid-column overrides
        this default ordering). */
     grid-column: 2;
-    margin-bottom: 30px;
+    margin-bottom: 0px;
   }
 
   .track-package-button {
@@ -210,9 +222,11 @@
        This element will now be placed in its normal column
        in the grid. */
     grid-column: auto;
-    margin-bottom: 70px;
+    margin-bottom: 30px;
   }
-
+  .remove-order-button{
+    margin-bottom: 20px;
+  }
   .track-package-button {
     width: 100%;
     padding: 12px;
