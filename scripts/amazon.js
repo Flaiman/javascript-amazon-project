@@ -12,15 +12,17 @@ async function renderProductsGrid(){
   let filteredProducts = products;
   
   if(search){
-    filteredProducts = products.filter((product)=>{
-      let matchingKeyword = false;
+    const queryLower = search.toLowerCase();
 
-      product.keywords.forEach((keyword)=>{
-        if(keyword.toLowerCase().includes(search.toLowerCase())){
-          matchingKeyword = true;
-        }
-      })
-      return matchingKeyword || product.name.toLowerCase().includes(search.toLowerCase());
+    filteredProducts = products.filter((product)=>{
+
+      if(product.name.toLowerCase().includes(queryLower))
+        return true;
+      
+      return product.keywords.some((kw)=>
+        kw.toLowerCase().includes(queryLower)
+      )
+
     })
   }
 
